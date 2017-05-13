@@ -11,11 +11,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.Buffer;
 import javax.imageio.ImageIO;
 
 @Controller
@@ -32,7 +30,7 @@ public class Rest {
         String type = fileName.substring(fileName.lastIndexOf(".") + 1);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getBytes());
         BufferedImage image = ImageIO.read(inputStream);
-        BufferedImage imageWithTabs = createImageWithTabs(image);
+        BufferedImage imageWithTabs = createImageWithTabs(image, 60);
         return createHttpEntity(getBytes(imageWithTabs, type), type);
     }
 
@@ -53,28 +51,29 @@ public class Rest {
         return out.toByteArray();
     }
 
-    private void drawTab(Graphics2D g, int x, int y, String side) {
+    private void drawTab(Graphics2D g, int x, int y, String side, int tab) {
+        int size = 300;
         // top
         if (side.equalsIgnoreCase("top")) {
-            g.drawLine(x, y, x+20, y-20);
-            g.drawLine(x + 20, y - 20, x + 300 - 20, y - 20);
-            g.drawLine(x + 300, y, x + 300 - 20, y - 20);
+            g.drawLine(x, y, x+tab, y-tab);
+            g.drawLine(x + tab, y - tab, x + size - tab, y - tab);
+            g.drawLine(x + size, y, x + size - tab, y - tab);
         }
         // bottom
         else if (side.equalsIgnoreCase("bottom")) {
-            g.drawLine(x, y, x+20, y+20);
-            g.drawLine(x + 20, y + 20, x + 300 - 20, y + 20);
-            g.drawLine(x + 300, y, x + 300 - 20, y + 20);
+            g.drawLine(x, y, x+tab, y+tab);
+            g.drawLine(x + tab, y + tab, x + size - tab, y + tab);
+            g.drawLine(x + size, y, x + size - tab, y + tab);
         }
         // east
         else if (side.equalsIgnoreCase("east")) {
-            g.drawLine(x, y, x + 20, y + 20);
-            g.drawLine(x + 20, y + 20, x + 20, y + 300 - 20);
-            g.drawLine(x, y + 300, x + 20, y + 300 - 20);
+            g.drawLine(x, y, x + tab, y + tab);
+            g.drawLine(x + tab, y + tab, x + tab, y + size - tab);
+            g.drawLine(x, y + size, x + tab, y + size - tab);
         }
     }
 
-    protected BufferedImage createImageWithTabs(BufferedImage image) {
+    protected BufferedImage createImageWithTabs(BufferedImage image, int tabSize) {
         BufferedImage image2 = new BufferedImage(1810, 1200, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image2.createGraphics();
         g.setPaint(new Color(255, 255, 255));
@@ -82,16 +81,16 @@ public class Rest {
         g.drawImage(image, 0, 150, null);
         g.setPaint(new Color(0, 0, 0));
         // top
-        drawTab(g, 304, 454, "top");
-        drawTab(g, 304 + 300, 454 - 300, "top");
-        drawTab(g, 304 + (300 * 2), 454, "top");
+        drawTab(g, 304, 454, "top", tabSize);
+        drawTab(g, 304 + 300, 454 - 300, "top", tabSize);
+        drawTab(g, 304 + (300 * 2), 454, "top", tabSize);
         //drawTab(g, 304 + (300 * 3), 454, "top")
         // bottom
-        drawTab(g, 304, 754, "bottom");
-        drawTab(g, 304 + (300 * 2), 754, "bottom");
-        drawTab(g, 304 + (300 * 3), 754, "bottom");
+        drawTab(g, 304, 754, "bottom", tabSize);
+        drawTab(g, 304 + (300 * 2), 754, "bottom", tabSize);
+        drawTab(g, 304 + (300 * 3), 754, "bottom", tabSize);
         // east
-        drawTab(g, 304 + (300 * 4), 454, "east");
+        drawTab(g, 304 + (300 * 4), 454, "east", tabSize);
 
         g.dispose();
         return image2;
